@@ -49,12 +49,10 @@ const listSchema = new mongoose.Schema({
 
 const List = mongoose.model("List", listSchema);
 
+const day = date.getDate();
 
 // Home Page
 app.get("/", function (req, res) {
-
-  const day = date.getDate();
-
 
   Item.find(function (err, items) {
     if (err) {
@@ -88,17 +86,44 @@ app.get("/", function (req, res) {
 });
 
 
-// Home Post Route
+// Home post route, handles adding items to appropriate list
 app.post("/", function (req, res) {
 
   const itemName = req.body.newItem;
+  const listName = req.body.list;
+
+
 
   let item = new Item({
     name: itemName
   });
-  item.save();
 
-  res.redirect("/");
+
+  if (listName == day) {
+    // Add list to home route
+    item.save();
+    res.redirect("/");
+
+  } else {
+    List.findOne({
+      name: listName
+    }, function (err, foundList) {
+
+      if (!err) {
+        if (foundList) {
+          // Add to custom list
+          foundList.items.push(item);
+          foundList.save();
+          res.redirect("/" + listName);
+        }
+      } else {
+        console.log(err);
+      }
+
+    });
+
+  }
+
 });
 
 
