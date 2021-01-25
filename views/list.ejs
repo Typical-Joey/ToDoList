@@ -13,6 +13,7 @@
       <input type="checkbox" name="deleteItem" value="<%= item._id %>" onchange="this.form.submit()">
       <p><%=  item.name  %></p>
     </div>
+    <input type="hidden" name="listName" value="<%= listTitle %>">
 
   </form>
 

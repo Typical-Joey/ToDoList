@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const date = require(__dirname + "/date.js");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -50,6 +51,7 @@ const listSchema = new mongoose.Schema({
 const List = mongoose.model("List", listSchema);
 
 const day = date.getDate();
+
 
 // Home Page
 app.get("/", function (req, res) {
@@ -129,7 +131,7 @@ app.post("/", function (req, res) {
 
 // Making other lists
 app.get("/:customListName", function (req, res) {
-  const customListName = req.params.customListName;
+  const customListName = _.capitalize(req.params.customListName);
 
   List.findOne({
     name: customListName
@@ -163,16 +165,36 @@ app.get("/:customListName", function (req, res) {
 // Delete items ------------------------------------------------------------
 app.post("/delete", function (req, res) {
   const itemID = req.body.deleteItem;
+  const listName = req.body.listName;
 
+  if (listName == day) {
+    // Remove item in home route
+    Item.findByIdAndRemove(itemID, function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+    res.redirect("/");
 
-  Item.findByIdAndRemove(itemID, function (err) {
-    if (err) {
-      console.log(err);
-    }
-  })
+  } else {
+    console.log("Custom List");
+    List.findOneAndUpdate({
+        name: listName
+      }, {
+        $pull: {
+          items: {
+            _id: itemID
+          }
+        }
+      },
+      function (err) {
+        if (!err) {
+          res.redirect("/" + listName);
+        }
+      });
 
+  }
 
-  res.redirect("/");
 });
 
 
