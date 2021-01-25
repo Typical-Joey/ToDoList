@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 
-mongoose.connect("mongodb://localhost:27017/todolistDB", {
+mongoose.connect("mongodb+srv://admin-joey:admin@cluster0.p3anf.mongodb.net/todolistDB?retryWrites=true&w=majority", {
   useUnifiedTopology: true,
   useNewUrlParser: true,
   useFindAndModify: false
